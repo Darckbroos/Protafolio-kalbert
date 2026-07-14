@@ -258,6 +258,8 @@ section { padding: 5.5rem 6%; position: relative; z-index: 1; }
 .cert-title { font-size: .9rem; font-weight: 700; margin-bottom: .2rem; }
 .cert-inst { font-size: .75rem; color: var(--p2); font-weight: 600; margin-bottom: .2rem; }
 .cert-date { font-size: .7rem; color: var(--muted); }
+.cert-verify { display: inline-block; margin-top: .5rem; font-size: .7rem; font-weight: 600; color: var(--s); text-decoration: none; transition: color .2s; }
+.cert-verify:hover { color: var(--s2); }
 
 /* CONTACT */
 #contacto { background: rgba(7,7,26,.68); }

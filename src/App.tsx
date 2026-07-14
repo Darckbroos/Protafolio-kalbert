@@ -27,11 +27,11 @@ export default function App() {
       <ParticlesCanvas />
       <Nav />
       <Hero />
-      <Problems />
       <Skills />
       <Projects />
       <Experience />
       <Certifications />
+      <Problems />
       <Contact />
       <Footer />
     </>

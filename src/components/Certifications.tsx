@@ -11,10 +11,15 @@ export default function Certifications() {
         {CERTS.map(c => (
           <div key={c.title} className="cert-card reveal">
             <span className="cert-icon">{c.icon}</span>
-            <div>
+            <div style={{ flex: 1 }}>
               <div className="cert-title">{c.title}</div>
               <div className="cert-inst">{c.inst}</div>
               <div className="cert-date">{c.date}</div>
+              {c.url && (
+                <a href={c.url} target="_blank" rel="noopener noreferrer" className="cert-verify">
+                  Verificar certificado ↗
+                </a>
+              )}
             </div>
           </div>
         ))}
