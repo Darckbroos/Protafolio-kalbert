@@ -14,7 +14,17 @@ export default function App() {
   useEffect(() => {
     const obs = new IntersectionObserver(
       entries => entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target) }
+        if (e.isIntersecting) {
+          e.target.classList.add('visible')
+          e.target.classList.remove('exit-up')
+        } else {
+          // Exiting upward (scrolled past) → slide out up
+          // Exiting downward (not reached yet) → reset to slide-in-from-below
+          if (e.boundingClientRect.top < 0) {
+            e.target.classList.add('exit-up')
+          }
+          e.target.classList.remove('visible')
+        }
       }),
       { threshold: 0.12 }
     )

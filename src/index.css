@@ -257,6 +257,8 @@ section { padding: 5.5rem 6%; position: relative; z-index: 1; }
 .exp3d-row--r .exp3d-slot-a .exp3d-card.reveal { transform: translateX(50px) rotateY(-12deg); opacity: 0; }
 .exp3d-slot-a .exp3d-card.reveal.visible,
 .exp3d-row--r .exp3d-slot-a .exp3d-card.reveal.visible { transform: none !important; opacity: 1; }
+.exp3d-slot-a .exp3d-card.reveal.exit-up,
+.exp3d-row--r .exp3d-slot-a .exp3d-card.reveal.exit-up { transform: translateY(-36px) !important; opacity: 0; transition: opacity .45s ease, transform .45s ease; }
 
 /* CERTIFICATIONS */
 #certificaciones { background: rgba(13,13,36,.72); }
@@ -292,8 +294,9 @@ footer p { font-size: .78rem; color: var(--muted); }
 .f-logo { font-family: 'JetBrains Mono',monospace; font-size: 1rem; font-weight: 700; background: linear-gradient(135deg,var(--p),var(--s)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
 /* SCROLL REVEAL */
-.reveal { opacity: 0; transform: translateY(30px); transition: opacity .7s ease,transform .7s ease; }
+.reveal { opacity: 0; transform: translateY(36px); transition: opacity .65s ease, transform .65s ease; }
 .reveal.visible { opacity: 1; transform: none; }
+.reveal.exit-up { opacity: 0; transform: translateY(-36px); transition: opacity .45s ease, transform .45s ease; }
 
 /* PROJECT VISUAL ANIMATIONS */
 @keyframes fadeInLine {
