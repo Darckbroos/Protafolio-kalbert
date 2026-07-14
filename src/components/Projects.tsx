@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { PROJECTS } from '../data'
+import ProjectVisual from './ProjectVisual'
 
 export default function Projects() {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([])
@@ -39,12 +40,13 @@ export default function Projects() {
       <div className="proj-grid">
         {PROJECTS.map((p, i) => (
           <div key={p.title} className="proj-card reveal" ref={el => { cardsRef.current[i] = el }}>
-            <img className="proj-img" src={p.img} alt={p.title} loading="lazy" />
+            <ProjectVisual id={p.id} />
             <div className="proj-body">
               <div className="proj-cat" style={{ color: p.catColor }}>{p.cat}</div>
               <div className="proj-title">
                 {p.title}
                 {p.honor && <span className="badge-honor">★ Distinción</span>}
+                {p.soon && <span className="badge-soon">🚀 Próximamente</span>}
               </div>
               <p className="proj-desc">{p.desc}</p>
               <div className="proj-stack">

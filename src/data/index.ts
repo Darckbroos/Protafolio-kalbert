@@ -33,32 +33,39 @@ export const SKILLS = [
 
 export const PROJECTS = [
   {
-    img: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=700&q=80',
+    id: 'fixpc',
     cat: 'Desarrollo Web', catColor: 'var(--p2)',
-    title: 'fixpc.cl', honor: false,
-    desc: 'Plataforma de soporte técnico remoto con sistema de tickets y portal de clientes. Código propio, sin plantillas.',
+    title: 'fixpc.cl', honor: false, soon: false,
+    desc: 'Plataforma de desarrollo web con sistema de tickets, portal de clientes y soporte técnico integrado. Código propio, sin plantillas.',
     stack: ['ReactJS', 'Django', 'PostgreSQL', 'Docker'],
   },
   {
-    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=700&q=80',
-    cat: 'Fitness & Bienestar', catColor: 'var(--pk)',
-    title: 'bodybest.cl', honor: false,
-    desc: 'Plataforma de bienestar online con contenido dinámico, diseño responsivo y SEO técnico optimizado.',
-    stack: ['ReactJS', 'Django', 'PostgreSQL', 'Bootstrap', 'AWS'],
+    id: 'bodybest',
+    cat: 'Tienda de Suplementos', catColor: 'var(--pk)',
+    title: 'bodybest.cl', honor: false, soon: false,
+    desc: 'E-commerce de suplementos deportivos con catálogo dinámico, carrito a medida, pagos integrados y SEO técnico optimizado.',
+    stack: ['ReactJS', 'Django', 'PostgreSQL', 'MercadoPago', 'AWS'],
   },
   {
-    img: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=700&q=80',
+    id: 'riosuradventure',
     cat: 'Turismo & Aventura', catColor: 'var(--g)',
-    title: 'riosuradventure.cl', honor: false,
-    desc: 'Sitio de turismo con galería, sistema de reservas y UX/UI orientado a conversión de clientes.',
+    title: 'riosuradventure.cl', honor: false, soon: false,
+    desc: 'Plataforma de turismo con galería multimedia, sistema de reservas online, rutas interactivas y UX orientado a conversión.',
     stack: ['HTML5/CSS3', 'JavaScript', 'Bootstrap', 'Django'],
   },
   {
-    img: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=700&q=80',
+    id: 'comfleet',
     cat: 'Gestión de Flotas', catColor: 'var(--a)',
-    title: 'ComFleet', honor: true,
-    desc: 'Plataforma de gestión de flotas con geolocalización Google Maps y notificaciones en tiempo real. Tesis con distinción universitaria.',
+    title: 'ComFleet', honor: true, soon: false,
+    desc: 'Plataforma de gestión de flotas de envío con geolocalización Google Maps y notificaciones en tiempo real. Tesis con distinción universitaria.',
     stack: ['Django', 'React', 'Google Maps API', 'Firebase', 'PostgreSQL'],
+  },
+  {
+    id: 'fixtemp',
+    cat: 'Diagnóstico de Equipos', catColor: 'var(--s)',
+    title: 'fixtemp', honor: false, soon: true,
+    desc: 'Herramienta de diagnóstico automático para PC y notebooks — detecta fallas de hardware, temperatura, RAM y disco en minutos.',
+    stack: ['Python', 'Electron', 'React', 'SQLite'],
   },
 ]
 
