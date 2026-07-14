@@ -125,36 +125,30 @@ export const CERTS = [
     icon: '🎓', title: 'Ingeniero en Ejecución Informática',
     inst: 'Universidad de Las Américas',
     date: '2018 – 2022 · Tesis ComFleet — Mención de Honor',
-    url: '',
   },
   {
     icon: '🛡️', title: 'Diplomado en Ciberseguridad',
     inst: 'Universidad de Las Américas — UDLA',
     date: 'Mar – Sep 2024 · Kali Linux, Pentesting, COBIT, NIST',
-    url: '',
   },
   {
     icon: '📋', title: 'Relator Informático REUF SENCE',
     inst: 'SENCE Chile',
     date: 'Aprobado Oct 2025 · Hacking Ético, Redes, Cloud, Vue',
-    url: '',
   },
   {
     icon: '⚛️', title: 'Master en React: ReactJS, Hooks, MERN, NodeJS, JWT+',
     inst: 'Udemy · Víctor Robles',
     date: 'Jun 2026 · 39.5 horas',
-    url: 'https://ude.my/UC-f4e7c7ff-b9d8-404a-8149-58b5e0eadff3',
   },
   {
     icon: '🐍', title: 'Master en Python: Python 3, Django, Flask y Tkinter',
     inst: 'Udemy · Víctor Robles',
     date: 'Jun 2026 · 30.5 horas',
-    url: 'https://ude.my/UC-dd0c0fcf-229f-4898-86ae-d1675ea3670c',
   },
   {
     icon: '🌐', title: 'Publicar webs en Internet: Hosting y VPS',
     inst: 'Udemy · Víctor Robles',
     date: 'Jun 2026 · 6 horas',
-    url: 'https://ude.my/UC-46fa74ec-cec5-42e4-ac1b-80b558956a23',
   },
 ]

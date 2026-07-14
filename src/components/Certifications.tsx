@@ -15,11 +15,6 @@ export default function Certifications() {
               <div className="cert-title">{c.title}</div>
               <div className="cert-inst">{c.inst}</div>
               <div className="cert-date">{c.date}</div>
-              {c.url && (
-                <a href={c.url} target="_blank" rel="noopener noreferrer" className="cert-verify">
-                  Verificar certificado ↗
-                </a>
-              )}
             </div>
           </div>
         ))}
