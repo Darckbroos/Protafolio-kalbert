@@ -10,8 +10,10 @@ export default function Certifications() {
       <div className="certs-grid">
         {CERTS.map(c => (
           <div key={c.title} className="cert-card reveal">
-            <span className="cert-icon">{c.icon}</span>
-            <div style={{ flex: 1 }}>
+            <div className="cert-icon-wrap" style={{ background: c.iconBg, boxShadow: `0 0 18px ${c.iconColor}33` }}>
+              <i className={c.fa} style={{ color: c.iconColor }} />
+            </div>
+            <div>
               <div className="cert-title">{c.title}</div>
               <div className="cert-inst">{c.inst}</div>
               <div className="cert-date">{c.date}</div>
