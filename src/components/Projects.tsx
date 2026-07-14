@@ -47,11 +47,17 @@ export default function Projects() {
                 {p.title}
                 {p.honor && <span className="badge-honor">★ Distinción</span>}
                 {p.soon && <span className="badge-soon">🚀 Próximamente</span>}
+                {p.offline && <span className="badge-offline">Offline</span>}
               </div>
               <p className="proj-desc">{p.desc}</p>
               <div className="proj-stack">
                 {p.stack.map(s => <span key={s} className="proj-tag">{s}</span>)}
               </div>
+              {p.url && (
+                <a href={p.url} target="_blank" rel="noopener noreferrer" className="proj-link">
+                  <i className="fa-solid fa-arrow-up-right-from-square" /> Ver sitio
+                </a>
+              )}
             </div>
             <div className="shine" />
           </div>
