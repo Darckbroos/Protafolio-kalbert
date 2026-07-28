@@ -4,18 +4,23 @@ import { useEffect, useRef, useState } from 'react'
 function AnalyticsDemo() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [stats, setStats] = useState([0, 0, 0])
-  const TARGET = [124500, 3428, 4.2]
-  const LABELS = ['Ventas', 'Usuarios', 'Conversión']
-  const SUFFIX = ['', '', '%']
-  const FORMAT = [(v: number) => `$${(v / 1000).toFixed(1)}K`, (v: number) => v.toFixed(0), (v: number) => v.toFixed(1)]
+  const TARGETS = [124500, 3428, 4.2]
+  const LABELS  = ['Ventas totales', 'Usuarios activos', 'Conversión']
+  const FORMAT  = [
+    (v: number) => `$${(v / 1000).toFixed(1)}K`,
+    (v: number) => v.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
+    (v: number) => `${v.toFixed(1)}%`,
+  ]
+  const DELTAS  = ['+18%', '+7%', '+0.8pp']
+  const COLORS  = ['#a78bfa', '#38bdf8', '#34d399']
 
   useEffect(() => {
-    let frame = 0
+    let f = 0
     const iv = setInterval(() => {
-      frame = Math.min(frame + 1, 60)
-      const t = frame / 60
-      setStats(TARGET.map(tgt => tgt * t))
-      if (frame >= 60) clearInterval(iv)
+      f = Math.min(f + 1, 60)
+      const t = f / 60
+      setStats(TARGETS.map(tgt => tgt * t))
+      if (f >= 60) clearInterval(iv)
     }, 16)
     return () => clearInterval(iv)
   }, [])
@@ -31,22 +36,24 @@ function AnalyticsDemo() {
 
     const draw = (p: number) => {
       ctx.clearRect(0, 0, W, H)
-      const pad = { l: 32, r: 12, t: 12, b: 28 }
+      const pad = { l: 36, r: 14, t: 10, b: 32 }
       const cW = W - pad.l - pad.r
       const cH = H - pad.t - pad.b
-      const bW = cW / DATA.length * 0.55
+      const bW = (cW / DATA.length) * 0.52
       const gap = cW / DATA.length
 
-      // grid
-      ctx.strokeStyle = 'rgba(255,255,255,.06)'
-      ctx.lineWidth = 1
+      // grid lines + y labels
       for (let i = 0; i <= 4; i++) {
         const y = pad.t + cH - (cH / 4) * i
+        ctx.strokeStyle = 'rgba(255,255,255,.07)'
+        ctx.lineWidth = 1
         ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke()
-        ctx.fillStyle = 'rgba(255,255,255,.25)'
-        ctx.font = '9px Poppins'
-        ctx.fillText(`${i * 25}`, 2, y + 3)
+        ctx.fillStyle = 'rgba(255,255,255,.5)'
+        ctx.font = '10px Poppins,sans-serif'
+        ctx.textAlign = 'right'
+        ctx.fillText(`${i * 25}`, pad.l - 5, y + 4)
       }
+      ctx.textAlign = 'left'
 
       // bars
       DATA.forEach((v, i) => {
@@ -54,31 +61,32 @@ function AnalyticsDemo() {
         const bH = (v / 100) * cH * p
         const y = pad.t + cH - bH
         const grad = ctx.createLinearGradient(0, y, 0, pad.t + cH)
-        grad.addColorStop(0, '#7c3aed')
+        grad.addColorStop(0, '#818cf8')
         grad.addColorStop(1, '#06b6d4')
         ctx.fillStyle = grad
-        const r = 4
+        const r = 5
         ctx.beginPath()
-        ctx.moveTo(x + r, y); ctx.lineTo(x + bW - r, y)
-        ctx.quadraticCurveTo(x + bW, y, x + bW, y + r)
-        ctx.lineTo(x + bW, pad.t + cH); ctx.lineTo(x, pad.t + cH)
-        ctx.lineTo(x, y + r)
-        ctx.quadraticCurveTo(x, y, x + r, y)
-        ctx.closePath(); ctx.fill()
+        ctx.moveTo(x + r, y)
+        ctx.lineTo(x + bW - r, y)
+        ctx.arcTo(x + bW, y, x + bW, y + r, r)
+        ctx.lineTo(x + bW, pad.t + cH)
+        ctx.lineTo(x, pad.t + cH)
+        ctx.arcTo(x, y, x + r, y, r)
+        ctx.closePath()
+        ctx.fill()
 
-        // label
-        ctx.fillStyle = 'rgba(255,255,255,.45)'
-        ctx.font = '8px Poppins'
+        // x labels
+        ctx.fillStyle = 'rgba(255,255,255,.55)'
+        ctx.font = '9px Poppins,sans-serif'
         ctx.textAlign = 'center'
-        ctx.fillText(MONTHS[i], x + bW / 2, H - 6)
-        ctx.textAlign = 'left'
+        ctx.fillText(MONTHS[i], x + bW / 2, H - 8)
       })
 
       // trend line
       ctx.beginPath()
       ctx.strokeStyle = '#f59e0b'
       ctx.lineWidth = 2
-      ctx.setLineDash([4, 3])
+      ctx.setLineDash([5, 4])
       DATA.forEach((v, i) => {
         const x = pad.l + gap * i + gap / 2
         const y = pad.t + cH - (v / 100) * cH * p
@@ -86,6 +94,182 @@ function AnalyticsDemo() {
       })
       ctx.stroke()
       ctx.setLineDash([])
+      // trend dots
+      DATA.forEach((v, i) => {
+        const x = pad.l + gap * i + gap / 2
+        const y = pad.t + cH - (v / 100) * cH * p
+        ctx.beginPath()
+        ctx.arc(x, y, 3, 0, Math.PI * 2)
+        ctx.fillStyle = '#f59e0b'
+        ctx.fill()
+      })
+    }
+
+    const animate = () => {
+      prog = Math.min(prog + 0.02, 1)
+      draw(prog)
+      if (prog < 1) raf = requestAnimationFrame(animate)
+    }
+    animate()
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <div className="sc-panel">
+      <div className="sc-head">
+        <span className="sc-title"><i className="fa-solid fa-chart-bar" /> Dashboard Analítico</span>
+        <span className="sc-badge sc-badge--green"><span className="sc-dot" />Live</span>
+      </div>
+      <div className="sc-stats">
+        {LABELS.map((l, i) => (
+          <div key={l} className="sc-stat" style={{ '--sc-color': COLORS[i] } as React.CSSProperties}>
+            <div className="sc-stat-val">{FORMAT[i](stats[i])}</div>
+            <div className="sc-stat-label">{l}</div>
+            <div className="sc-stat-delta">↑ {DELTAS[i]}</div>
+          </div>
+        ))}
+      </div>
+      <canvas ref={canvasRef} width={420} height={170} style={{ width: '100%', height: 'auto', display: 'block' }} />
+    </div>
+  )
+}
+
+/* ── 2. UI Kit ── */
+function UIDemo() {
+  const [plan, setPlan]       = useState('pro')
+  const [notif, setNotif]     = useState(true)
+  const [dark, setDark]       = useState(false)
+  const [progress]            = useState(72)
+  const [toast, setToast]     = useState<string | null>(null)
+
+  const fire = (msg: string) => { setToast(msg); setTimeout(() => setToast(null), 2500) }
+
+  const PLANS = [
+    { id: 'basic', label: 'Básico', price: 'Gratis' },
+    { id: 'pro',   label: 'Pro ★', price: '$49/mes' },
+    { id: 'ent',   label: 'Enterprise', price: '$199/mes' },
+  ]
+
+  return (
+    <div className="sc-panel">
+      <div className="sc-head">
+        <span className="sc-title"><i className="fa-solid fa-palette" /> UI Kit</span>
+        <span className="sc-badge sc-badge--purple">Interactivo</span>
+      </div>
+
+      {/* Buttons */}
+      <div className="sc-section-label">Botones</div>
+      <div className="sc-row">
+        <button className="sc-btn sc-btn-p" onClick={() => fire('¡Proyecto enviado! Te respondo en <24h 🚀')}>
+          <i className="fa-solid fa-paper-plane" /> Contratar
+        </button>
+        <button className="sc-btn sc-btn-s" onClick={() => fire('Demo iniciando...')}>
+          <i className="fa-regular fa-eye" /> Ver demo
+        </button>
+        <button className="sc-btn sc-btn-g" onClick={() => fire('Acción cancelada')}>
+          Cancelar
+        </button>
+      </div>
+
+      {/* Toast */}
+      <div className={`sc-toast${toast ? ' sc-toast--show' : ''}`}>
+        <i className="fa-solid fa-circle-check" /> {toast}
+      </div>
+
+      {/* Plan selector */}
+      <div className="sc-section-label">Plan</div>
+      <div className="sc-plans">
+        {PLANS.map(p => (
+          <button
+            key={p.id}
+            className={`sc-plan${plan === p.id ? ' sc-plan--active' : ''}`}
+            onClick={() => { setPlan(p.id); fire(`Plan ${p.label} seleccionado — ${p.price}`) }}
+          >
+            <span className="sc-plan-name">{p.label}</span>
+            <span className="sc-plan-price">{p.price}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Progress */}
+      <div className="sc-section-label">Progreso del proyecto</div>
+      <div className="sc-progress-wrap">
+        <div className="sc-progress-track">
+          <div className="sc-progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+        <span className="sc-progress-pct">{progress}%</span>
+      </div>
+
+      {/* Toggles */}
+      <div className="sc-section-label">Ajustes</div>
+      <div className="sc-toggles">
+        {[
+          { label: 'Notificaciones', icon: 'fa-bell', val: notif, set: setNotif },
+          { label: 'Modo oscuro',    icon: 'fa-moon',  val: dark,  set: setDark  },
+        ].map(t => (
+          <div key={t.label} className="sc-toggle-row">
+            <i className={`fa-solid ${t.icon}`} style={{ color: 'var(--muted)', fontSize: '.8rem' }} />
+            <span>{t.label}</span>
+            <div className={`sc-toggle${t.val ? ' sc-toggle--on' : ''}`} onClick={() => { t.set((v: boolean) => !v); fire(`${t.label} ${!t.val ? 'activado' : 'desactivado'}`) }}>
+              <div className="sc-toggle-knob" />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── 3. E-commerce ── */
+function EcommerceDemo() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [cart, setCart]   = useState(0)
+  const [added, setAdded] = useState<string | null>(null)
+
+  const SEGS = [
+    { label: 'Proteínas',   pct: 38, color: '#818cf8' },
+    { label: 'Pre-workout', pct: 27, color: '#06b6d4' },
+    { label: 'Vitaminas',   pct: 20, color: '#34d399' },
+    { label: 'Otros',       pct: 15, color: '#f59e0b' },
+  ]
+  const PRODS = [
+    { name: 'Whey Pro 1kg', price: '$24.990', color: '#818cf8', badge: 'Top venta' },
+    { name: 'Pre-Workout X', price: '$18.500', color: '#06b6d4', badge: '-20%' },
+    { name: 'Creatina 300g', price: '$12.990', color: '#34d399', badge: 'Nuevo' },
+  ]
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')!
+    const W = canvas.width, H = canvas.height
+    const cx = W / 2, cy = H / 2
+    const R = 58, r = 34
+    let prog = 0, raf = 0
+
+    const draw = (p: number) => {
+      ctx.clearRect(0, 0, W, H)
+      let start = -Math.PI / 2
+      SEGS.forEach(s => {
+        const sweep = (s.pct / 100) * Math.PI * 2 * p
+        ctx.beginPath()
+        ctx.moveTo(cx, cy)
+        ctx.arc(cx, cy, R, start, start + sweep)
+        ctx.closePath()
+        ctx.fillStyle = s.color
+        ctx.fill()
+        start += sweep
+      })
+      // hole
+      ctx.beginPath()
+      ctx.arc(cx, cy, r, 0, Math.PI * 2)
+      ctx.fillStyle = 'rgba(13,13,36,1)'
+      ctx.fill()
+      // center text
+      ctx.textAlign = 'center'
+      ctx.fillStyle = '#e2e8f0'
+      ctx.font = 'bold 12px Poppins,sans-serif'
+      ctx.fillText('Ventas', cx, cy + 4)
     }
 
     const animate = () => {
@@ -97,177 +281,51 @@ function AnalyticsDemo() {
     return () => cancelAnimationFrame(raf)
   }, [])
 
-  return (
-    <div className="showcase-panel">
-      <div className="showcase-header">
-        <span className="showcase-tag">📊 Dashboard Analítico</span>
-        <span className="showcase-live">● Live</span>
-      </div>
-      <div className="showcase-stats-row">
-        {LABELS.map((l, i) => (
-          <div key={l} className="showcase-stat">
-            <div className="showcase-stat-val">{FORMAT[i](stats[i])}{SUFFIX[i]}</div>
-            <div className="showcase-stat-label">{l}</div>
-            <div className="showcase-stat-delta" style={{ color: '#10b981' }}>↑ {['+18%', '+7%', '+0.8pp'][i]}</div>
-          </div>
-        ))}
-      </div>
-      <canvas ref={canvasRef} width={380} height={160} style={{ width: '100%', height: 'auto' }} />
-    </div>
-  )
-}
-
-/* ── 2. UI Components showcase ── */
-function UIDemo() {
-  const [toggle1, setToggle1] = useState(true)
-  const [toggle2, setToggle2] = useState(false)
-  const [progress] = useState(72)
-  const [selected, setSelected] = useState('pro')
-  const [notify, setNotify] = useState(false)
+  const addCart = (name: string) => {
+    setCart(c => c + 1)
+    setAdded(name)
+    setTimeout(() => setAdded(null), 1800)
+  }
 
   return (
-    <div className="showcase-panel">
-      <div className="showcase-header">
-        <span className="showcase-tag">🎨 UI Kit</span>
-        <span className="showcase-live" style={{ color: '#a78bfa' }}>● Interactivo</span>
-      </div>
-
-      {/* Buttons */}
-      <div className="ui-row">
-        <button className="ui-btn ui-btn-primary" onClick={() => setNotify(true)}>Contratar</button>
-        <button className="ui-btn ui-btn-secondary">Ver demo</button>
-        <button className="ui-btn ui-btn-ghost">Cancelar</button>
-      </div>
-      {notify && (
-        <div className="ui-toast" onClick={() => setNotify(false)}>
-          ✅ ¡Mensaje enviado! Te respondo en &lt;24h
-        </div>
-      )}
-
-      {/* Plan selector */}
-      <div className="ui-plan-row">
-        {['basic', 'pro', 'enterprise'].map(p => (
-          <button
-            key={p}
-            className={`ui-plan-btn${selected === p ? ' active' : ''}`}
-            onClick={() => setSelected(p)}
-          >
-            {p === 'basic' ? 'Básico' : p === 'pro' ? 'Pro ★' : 'Enterprise'}
-          </button>
-        ))}
-      </div>
-
-      {/* Progress bar */}
-      <div className="ui-progress-wrap">
-        <div className="ui-progress-label"><span>Progreso del proyecto</span><span style={{ color: '#7c3aed', fontWeight: 700 }}>{progress}%</span></div>
-        <div className="ui-progress-track">
-          <div className="ui-progress-fill" style={{ width: `${progress}%` }} />
+    <div className="sc-panel">
+      <div className="sc-head">
+        <span className="sc-title"><i className="fa-solid fa-bag-shopping" /> E-commerce</span>
+        <div className="sc-cart-wrap">
+          <i className="fa-solid fa-cart-shopping" style={{ color: 'var(--muted)', fontSize: '.9rem' }} />
+          {cart > 0 && <span className="sc-cart-count">{cart}</span>}
         </div>
       </div>
 
-      {/* Toggles */}
-      <div className="ui-toggles">
-        <div className="ui-toggle-row">
-          <span>Notificaciones</span>
-          <div className={`ui-toggle${toggle1 ? ' on' : ''}`} onClick={() => setToggle1(v => !v)}><div className="ui-toggle-thumb" /></div>
-        </div>
-        <div className="ui-toggle-row">
-          <span>Modo oscuro</span>
-          <div className={`ui-toggle${toggle2 ? ' on' : ''}`} onClick={() => setToggle2(v => !v)}><div className="ui-toggle-thumb" /></div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* ── 3. E-commerce / Donut chart ── */
-function EcommerceDemo() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [cart, setCart] = useState(0)
-  const SEGMENTS = [
-    { label: 'Proteínas', pct: 38, color: '#7c3aed' },
-    { label: 'Pre-workout', pct: 27, color: '#06b6d4' },
-    { label: 'Vitaminas', pct: 20, color: '#10b981' },
-    { label: 'Otros', pct: 15, color: '#f59e0b' },
-  ]
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')!
-    const cx = canvas.width / 2, cy = canvas.height / 2
-    const R = 56, r = 32
-    let prog = 0, raf = 0
-
-    const draw = (p: number) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      let start = -Math.PI / 2
-      SEGMENTS.forEach(seg => {
-        const slice = (seg.pct / 100) * Math.PI * 2 * p
-        ctx.beginPath()
-        ctx.moveTo(cx, cy)
-        ctx.arc(cx, cy, R, start, start + slice)
-        ctx.closePath()
-        ctx.fillStyle = seg.color
-        ctx.fill()
-        start += slice
-      })
-      // hole
-      ctx.beginPath()
-      ctx.arc(cx, cy, r, 0, Math.PI * 2)
-      ctx.fillStyle = '#0d0d24'
-      ctx.fill()
-      // center text
-      ctx.fillStyle = '#e2e8f0'
-      ctx.font = 'bold 14px Poppins'
-      ctx.textAlign = 'center'
-      ctx.fillText('Ventas', cx, cy - 4)
-      ctx.font = '11px Poppins'
-      ctx.fillStyle = '#6b7280'
-      ctx.fillText('por categoría', cx, cy + 12)
-      ctx.textAlign = 'left'
-    }
-
-    const animate = () => {
-      prog = Math.min(prog + 0.03, 1)
-      draw(prog)
-      if (prog < 1) raf = requestAnimationFrame(animate)
-    }
-    animate()
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
-  return (
-    <div className="showcase-panel">
-      <div className="showcase-header">
-        <span className="showcase-tag">🛍️ E-commerce</span>
-        <span className="showcase-cart" onClick={() => setCart(0)}>
-          🛒 <span className="cart-count">{cart}</span>
-        </span>
-      </div>
-      <div className="ecom-layout">
-        <canvas ref={canvasRef} width={144} height={144} />
-        <div className="ecom-legend">
-          {SEGMENTS.map(s => (
-            <div key={s.label} className="ecom-leg-row">
-              <span className="ecom-dot" style={{ background: s.color }} />
-              <span className="ecom-leg-label">{s.label}</span>
-              <span className="ecom-leg-pct" style={{ color: s.color }}>{s.pct}%</span>
+      <div className="sc-ecom-top">
+        <canvas ref={canvasRef} width={140} height={140} style={{ flexShrink: 0 }} />
+        <div className="sc-legend">
+          {SEGS.map(s => (
+            <div key={s.label} className="sc-leg-row">
+              <span className="sc-leg-dot" style={{ background: s.color }} />
+              <span className="sc-leg-label">{s.label}</span>
+              <span className="sc-leg-pct" style={{ color: s.color }}>{s.pct}%</span>
             </div>
           ))}
         </div>
       </div>
-      <div className="ecom-products">
-        {[
-          { name: 'Whey Pro', price: '$24.990', color: '#7c3aed' },
-          { name: 'Pre-W X', price: '$18.500', color: '#06b6d4' },
-          { name: 'Creatina', price: '$12.990', color: '#10b981' },
-        ].map(p => (
-          <div key={p.name} className="ecom-item">
-            <div className="ecom-item-dot" style={{ background: p.color }} />
-            <span className="ecom-item-name">{p.name}</span>
-            <span className="ecom-item-price">{p.price}</span>
-            <button className="ecom-add" onClick={() => setCart(c => c + 1)} style={{ borderColor: p.color, color: p.color }}>+</button>
+
+      {added && <div className="sc-added-toast"><i className="fa-solid fa-circle-check" /> {added} agregado al carrito</div>}
+
+      <div className="sc-products">
+        {PRODS.map(p => (
+          <div key={p.name} className="sc-product">
+            <div className="sc-prod-thumb" style={{ background: `${p.color}22`, border: `1px solid ${p.color}44` }}>
+              <i className="fa-solid fa-box" style={{ color: p.color, fontSize: '.85rem' }} />
+            </div>
+            <div className="sc-prod-info">
+              <div className="sc-prod-name">{p.name}</div>
+              <div className="sc-prod-price">{p.price}</div>
+            </div>
+            <span className="sc-prod-badge" style={{ background: `${p.color}22`, color: p.color }}>{p.badge}</span>
+            <button className="sc-prod-add" style={{ background: p.color }} onClick={() => addCart(p.name)}>
+              <i className="fa-solid fa-plus" />
+            </button>
           </div>
         ))}
       </div>
@@ -275,16 +333,15 @@ function EcommerceDemo() {
   )
 }
 
-/* ── Section ── */
 export default function DesignShowcase() {
   return (
     <section id="diseno">
       <div className="sec-header reveal">
         <div className="sec-tag">Capacidades visuales</div>
         <h2 className="sec-title">Gráficos & <span>diseño UI</span></h2>
-        <p className="sec-desc">Ejemplos reales de lo que construyo — dashboards, componentes y e-commerce con datos vivos.</p>
+        <p className="sec-desc">Demos interactivos de lo que construyo — dashboards, componentes y e-commerce con datos reales.</p>
       </div>
-      <div className="showcase-grid">
+      <div className="sc-grid">
         <div className="reveal"><AnalyticsDemo /></div>
         <div className="reveal"><UIDemo /></div>
         <div className="reveal"><EcommerceDemo /></div>
