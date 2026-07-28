@@ -5,6 +5,7 @@ export default function Nav() {
       <ul className="nav-links">
         <li><a href="#skills">Skills</a></li>
         <li><a href="#proyectos">Proyectos</a></li>
+        <li><a href="#diseno">Diseño UI</a></li>
         <li><a href="#experiencia">Experiencia</a></li>
         <li><a href="#problemas">El problema</a></li>
         <li><a href="#contacto" className="nav-cta">🚀 Quiero mi proyecto</a></li>
